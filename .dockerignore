@@ -1,0 +1,24 @@
+# Ignore build/dependency artifacts
+node_modules
+dist
+
+# Ignore documentation and environment files
+docs
+docker
+.git
+.github
+README.md
+
+# Ignore local configs and variables
+.env
+.env.*
+.prettierrc
+eslint.config.mjs
+nest-cli.json
+tsconfig.json
+tsconfig.build.json
+
+# Ignore test folders
+test
+*.spec.ts
+*.test.ts
