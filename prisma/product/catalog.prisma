@@ -1,16 +1,15 @@
 model Category {
-  id          String    @id @default(uuid()) @db.Uuid
+  id          String     @id @default(uuid()) @db.Uuid
   name        String
-  slug        String    @unique
+  slug        String     @unique
   description String?
-  parentId    String?   @map("parent_id") @db.Uuid
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-
-  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
-  children Category[] @relation("CategoryHierarchy")
-  products Product[]
+  parentId    String?    @map("parent_id") @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
 
   @@index([parentId])
   @@index([deletedAt])
@@ -26,30 +25,28 @@ model Brand {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
-
-  products Product[]
+  products    Product[]
 
   @@index([deletedAt])
   @@map("brands")
 }
 
 model Product {
-  id              String        @id @default(uuid()) @db.Uuid
-  sellerProfileId String        @map("seller_profile_id") @db.Uuid
-  categoryId      String        @map("category_id") @db.Uuid
-  brandId         String        @map("brand_id") @db.Uuid
+  id              String           @id @default(uuid()) @db.Uuid
+  sellerProfileId String           @map("seller_profile_id") @db.Uuid
+  categoryId      String           @map("category_id") @db.Uuid
+  brandId         String           @map("brand_id") @db.Uuid
   name            String
-  slug            String        @unique
-  description     String        @db.Text
-  status          ProductStatus @default(DRAFT)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  deletedAt       DateTime?     @map("deleted_at")
-
-  sellerProfile SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
-  category      Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  brand         Brand         @relation(fields: [brandId], references: [id], onDelete: Restrict)
-  variants      ProductVariant[]
+  slug            String           @unique
+  description     String
+  status          ProductStatus    @default(DRAFT)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+  variants        ProductVariant[]
+  brand           Brand            @relation(fields: [brandId], references: [id])
+  category        Category         @relation(fields: [categoryId], references: [id])
+  sellerProfile   SellerProfile    @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
 
   @@index([sellerProfileId])
   @@index([categoryId])
@@ -60,18 +57,17 @@ model Product {
 }
 
 model ProductVariant {
-  id             String    @id @default(uuid()) @db.Uuid
-  productId      String    @map("product_id") @db.Uuid
-  sku            String    @unique
-  price          Decimal   @db.Decimal(12, 2)
-  compareAtPrice Decimal?  @map("compare_at_price") @db.Decimal(12, 2)
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at")
-
-  product           Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id                String             @id @default(uuid()) @db.Uuid
+  productId         String             @map("product_id") @db.Uuid
+  sku               String             @unique
+  price             Decimal            @db.Decimal(12, 2)
+  compareAtPrice    Decimal?           @map("compare_at_price") @db.Decimal(12, 2)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  deletedAt         DateTime?          @map("deleted_at")
   inventory         Inventory?
   images            ProductImage[]
+  product           Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
   variantAttributes VariantAttribute[]
 
   @@index([productId])
@@ -80,50 +76,46 @@ model ProductVariant {
 }
 
 model Inventory {
-  id               String   @id @default(uuid()) @db.Uuid
-  productVariantId String   @unique @map("product_variant_id") @db.Uuid
-  stock            Int      @default(0)
-  reserved         Int      @default(0)
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-
-  productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+  id               String         @id @default(uuid()) @db.Uuid
+  productVariantId String         @unique @map("product_variant_id") @db.Uuid
+  stock            Int            @default(0)
+  reserved         Int            @default(0)
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
 
   @@map("inventories")
 }
 
 model ProductImage {
-  id               String   @id @default(uuid()) @db.Uuid
-  productVariantId String   @map("product_variant_id") @db.Uuid
+  id               String         @id @default(uuid()) @db.Uuid
+  productVariantId String         @map("product_variant_id") @db.Uuid
   url              String
-  isFeatured       Boolean  @default(false) @map("is_featured")
-  sortOrder        Int      @default(0) @map("sort_order")
-  createdAt        DateTime @default(now()) @map("created_at")
-
-  productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+  isFeatured       Boolean        @default(false) @map("is_featured")
+  sortOrder        Int            @default(0) @map("sort_order")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
 
   @@index([productVariantId])
   @@map("product_images")
 }
 
 model Attribute {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  values AttributeValue[]
+  id        String           @id @default(uuid()) @db.Uuid
+  name      String           @unique
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+  values    AttributeValue[]
 
   @@map("attributes")
 }
 
 model AttributeValue {
-  id          String   @id @default(uuid()) @db.Uuid
-  attributeId String   @map("attribute_id") @db.Uuid
-  value       String
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
+  id                String             @id @default(uuid()) @db.Uuid
+  attributeId       String             @map("attribute_id") @db.Uuid
+  value             String
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
   attribute         Attribute          @relation(fields: [attributeId], references: [id], onDelete: Cascade)
   variantAttributes VariantAttribute[]
 
@@ -133,12 +125,11 @@ model AttributeValue {
 }
 
 model VariantAttribute {
-  id               String @id @default(uuid()) @db.Uuid
-  productVariantId String @map("product_variant_id") @db.Uuid
-  attributeValueId String @map("attribute_value_id") @db.Uuid
-
-  productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
-  attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+  id               String         @id @default(uuid()) @db.Uuid
+  productVariantId String         @map("product_variant_id") @db.Uuid
+  attributeValueId String         @map("attribute_value_id") @db.Uuid
+  attributeValue   AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
 
   @@unique([productVariantId, attributeValueId])
   @@index([attributeValueId])

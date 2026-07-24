@@ -1,20 +1,18 @@
 model Role {
-  id       String  @id @default(uuid()) @db.Uuid
-  name     String  @unique
-  isSystem Boolean @default(false) @map("is_system")
-
-  userRoles       UserRole[]
+  id              String           @id @default(uuid()) @db.Uuid
+  name            String           @unique
+  isSystem        Boolean          @default(false) @map("is_system")
   rolePermissions RolePermission[]
+  userRoles       UserRole[]
 
   @@map("roles")
 }
 
 model Permission {
-  id       String @id @default(uuid()) @db.Uuid
-  name     String
-  resource String
-  action   String
-
+  id              String           @id @default(uuid()) @db.Uuid
+  name            String
+  resource        String
+  action          String
   rolePermissions RolePermission[]
 
   @@map("permissions")
@@ -26,10 +24,9 @@ model UserRole {
   roleId       String   @map("role_id") @db.Uuid
   assignedById String   @map("assigned_by") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at")
-
-  user       User @relation("UserRolesForUser", fields: [userId], references: [id], onDelete: Cascade)
-  role       Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  assignedBy User @relation("AssignedByStaff", fields: [assignedById], references: [id])
+  assignedBy   User     @relation("AssignedByStaff", fields: [assignedById], references: [id])
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user         User     @relation("UserRolesForUser", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@index([roleId])
@@ -38,12 +35,11 @@ model UserRole {
 }
 
 model RolePermission {
-  id           String @id @default(uuid()) @db.Uuid
-  roleId       String @map("role_id") @db.Uuid
-  permissionId String @map("permission_id") @db.Uuid
-
-  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  id           String     @id @default(uuid()) @db.Uuid
+  roleId       String     @map("role_id") @db.Uuid
+  permissionId String     @map("permission_id") @db.Uuid
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
   @@index([permissionId])

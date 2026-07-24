@@ -7,8 +7,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from '@prisma/client';
+
 import { CreateUserDto } from './dto/create-user.dto';
+import { User } from 'prisma/generated';
+
 
 @Controller('users')
 export class UserController {
