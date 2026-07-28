@@ -46,10 +46,7 @@ export class UserController {
   // --- Addresses ---
 
   @Post(':id/addresses')
-  async addAddress(
-    @Param('id') userId: string,
-    @Body() dto: CreateAddressDto,
-  ) {
+  async addAddress(@Param('id') userId: string, @Body() dto: CreateAddressDto) {
     return this.userService.addAddress(userId, dto);
   }
 

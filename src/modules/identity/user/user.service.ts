@@ -3,12 +3,13 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateAddressDto } from './dto/create-address.dto';
-import { User, UserStatus } from '../../../../prisma/generated';
+
 import { CryptoUtil } from '../common/crypto.util';
+import { User, UserStatus } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findOne(id: string): Promise<Omit<User, 'password'> | null> {
     const user = await this.prisma.user.findFirst({
@@ -25,7 +26,7 @@ export class UserService {
     });
 
     if (!user) return null;
-    const { password, ...withoutPassword } = user;
+    const { password: _password, ...withoutPassword } = user;
     return withoutPassword;
   }
 
@@ -48,12 +49,14 @@ export class UserService {
       },
     });
 
-    const { password, ...withoutPassword } = user;
+    const { password: _password, ...withoutPassword } = user;
     return withoutPassword;
   }
 
   async updateUser(id: string, dto: UpdateUserDto) {
-    const user = await this.prisma.user.findFirst({ where: { id, deletedAt: null } });
+    const user = await this.prisma.user.findFirst({
+      where: { id, deletedAt: null },
+    });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
     const updated = await this.prisma.user.update({
@@ -65,12 +68,14 @@ export class UserService {
       },
     });
 
-    const { password, ...withoutPassword } = updated;
+    const { password: _password, ...withoutPassword } = updated;
     return withoutPassword;
   }
 
   async softDeleteUser(id: string) {
-    const user = await this.prisma.user.findFirst({ where: { id, deletedAt: null } });
+    const user = await this.prisma.user.findFirst({
+      where: { id, deletedAt: null },
+    });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
 
     await this.prisma.user.update({

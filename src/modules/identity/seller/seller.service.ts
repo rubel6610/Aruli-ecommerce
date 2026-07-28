@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Injectable,
   ConflictException,
@@ -6,8 +7,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateSellerDto } from './dto/create-seller.dto';
 import { UpdateSellerStatusDto } from './dto/update-seller-status.dto';
-import { SellerStatus } from '../../../../prisma/generated';
-
+import { SellerStatus } from '@prisma/client';
 @Injectable()
 export class SellerService {
   constructor(private readonly prisma: PrismaService) {}

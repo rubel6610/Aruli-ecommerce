@@ -1,4 +1,4 @@
-import { SellerStatus } from '../../../../../prisma/generated';
+import { SellerStatus } from '@prisma/client';
 
 export class UpdateSellerStatusDto {
   status!: SellerStatus;

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Injectable,
   ConflictException,
@@ -8,11 +9,11 @@ import { CryptoUtil } from '../common/crypto.util';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { UserStatus } from '../../../../prisma/generated';
+import { UserStatus } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async signUp(dto: SignUpDto) {
     const existing = await this.prisma.user.findFirst({
@@ -40,7 +41,7 @@ export class AuthService {
       'Web Browser',
     );
 
-    const { password, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     return {
       user: userWithoutPassword,
       refreshToken: tokenSession.rawToken,
@@ -85,7 +86,7 @@ export class AuthService {
     const deviceName = dto.deviceName || 'Unknown Device';
     const tokenSession = await this.createRefreshTokenSession(user.id, deviceName);
 
-    const { password, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     return {
       user: userWithoutPassword,
       refreshToken: tokenSession.rawToken,
