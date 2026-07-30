@@ -24,6 +24,11 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @Get()
+  async findAllUser(){
+    return this.userService.findAllUser()
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const user = await this.userService.findOne(id);

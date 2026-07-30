@@ -7,9 +7,14 @@ import { CreateAddressDto } from './dto/create-address.dto';
 import { CryptoUtil } from '../common/crypto.util';
 import { User, UserStatus } from '@prisma/client';
 
+
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) { }
+
+  async findAllUser():Promise<Omit<User, "password">[]>{
+     return this.prisma.user.findMany()
+  }
 
   async findOne(id: string): Promise<Omit<User, 'password'> | null> {
     const user = await this.prisma.user.findFirst({
