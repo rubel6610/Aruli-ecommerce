@@ -1,19 +1,26 @@
-/* eslint-disable prettier/prettier */
 import {
   Injectable,
   ConflictException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailService } from '../common/mail.service';
 import { CryptoUtil } from '../common/crypto.util';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UserStatus } from '@prisma/client';
 
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailService: MailService,
+  ) {}
 
   async signUp(dto: SignUpDto) {
     const existing = await this.prisma.user.findFirst({
@@ -91,6 +98,70 @@ export class AuthService {
       user: userWithoutPassword,
       refreshToken: tokenSession.rawToken,
       expiresAt: tokenSession.expiresAt,
+    };
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.prisma.user.findFirst({
+      where: { email: dto.email, deletedAt: null },
+    });
+
+    if (user && user.status === UserStatus.ACTIVE) {
+      const rawToken = CryptoUtil.generateRandomToken(32);
+      const tokenHash = CryptoUtil.hashToken(rawToken);
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiration
+
+      await this.prisma.passwordResetToken.create({
+        data: {
+          userId: user.id,
+          tokenHash,
+          expiresAt,
+        },
+      });
+
+      const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+      const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+      await this.mailService.sendPasswordResetEmail(user.email, resetLink);
+    }
+
+    return {
+      message: 'If an account with that email exists, a password reset link has been sent.',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const tokenHash = CryptoUtil.hashToken(dto.token);
+
+    const resetTokenRecord = await this.prisma.passwordResetToken.findFirst({
+      where: {
+        tokenHash,
+        isUsed: false,
+        expiresAt: { gte: new Date() },
+      },
+    });
+
+    if (!resetTokenRecord) {
+      throw new BadRequestException('Invalid or expired password reset token');
+    }
+
+    const hashedPassword = CryptoUtil.hashPassword(dto.newPassword);
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: resetTokenRecord.userId },
+        data: { password: hashedPassword },
+      }),
+      this.prisma.passwordResetToken.update({
+        where: { id: resetTokenRecord.id },
+        data: { isUsed: true },
+      }),
+      this.prisma.refreshToken.deleteMany({
+        where: { userId: resetTokenRecord.userId },
+      }),
+    ]);
+
+    return {
+      message: 'Password reset successfully. You can now log in with your new password.',
     };
   }
 

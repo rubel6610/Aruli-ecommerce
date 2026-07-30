@@ -20,3 +20,51 @@ Content-Type: application/json
 }
 ###
 GET http://localhost:3000/users
+
+
+###
+GET  http://localhost:3000/rbac/roles
+
+###
+POST  http://localhost:3000/rbac/roles
+Content-Type: application/json
+{
+    "name": "Admin",
+}
+###
+POST  http://localhost:3000/rbac/permissions
+Content-Type: application/json
+
+{
+    "name": "create-user",
+    "description": "Create user permission"
+}
+###
+POST  http://localhost:3000/rbac/user-roles
+Content-Type: application/json
+
+{
+    "userId": "1",
+    "roleId": "1"
+}
+###
+DELETE  http://localhost:3000/rbac/user-roles/1/1
+###
+GET  http://localhost:3000/rbac/user-permissions/1
+
+
+POST http://localhost:3000/auth/forgot-password
+Content-Type: application/json
+
+{
+    "email": "rubel@gmail.com"
+}
+
+###
+POST http://localhost:3000/auth/reset-password
+Content-Type: application/json
+
+{
+    "token": "PASTE_RESET_TOKEN_HERE",
+    "newPassword": "newPassword123"
+}
