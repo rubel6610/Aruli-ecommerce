@@ -7,8 +7,7 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+  implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
   private static pool: Pool;
   private static adapter: PrismaPg;
@@ -34,6 +33,23 @@ export class PrismaService
     await this.$connect();
     this.logger.log('Database connection established.');
   }
+async cleanDb() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('You are not allowed to run this function in production mode.');
+  }
+
+  // Filter out internal Prisma properties (_), methods ($), and non-model properties
+  const models = Reflect.ownKeys(this).filter(
+    (key) =>
+      typeof key === 'string' &&
+      !key.startsWith('_') &&
+      !key.startsWith('$') &&
+      typeof (this as any)[key]?.deleteMany === 'function',
+  );
+
+  return Promise.all(models.map((model) => (this as any)[model].deleteMany()));
+}
+
 
   async onModuleDestroy() {
     this.logger.log('Disconnecting from database...');

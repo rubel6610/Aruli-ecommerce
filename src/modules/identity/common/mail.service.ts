@@ -16,17 +16,17 @@ export class MailService {
       this.transporter = nodemailer.createTransport({
         host,
         port,
-        secure: port === 465,
+        secure: port === 465, // true for 465, false for 587 (STARTTLS)
         auth: { user, pass },
       });
-      this.logger.log(`MailService initialized with SMTP host: ${host}`);
+      this.logger.log(`MailService initialized with SMTP host: ${host}:${port}`);
     } else {
       this.logger.warn('SMTP configuration missing in env (SMTP_HOST, SMTP_USER, SMTP_PASS). MailService will log reset links to console.');
     }
   }
 
   async sendPasswordResetEmail(toEmail: string, resetLink: string): Promise<void> {
-    const from = process.env.MAIL_FROM ?? '"Aruli Support" <noreply@aruli-ecommerce.com>';
+    const from = process.env.MAIL_FROM ?? `"Aruli Support" <${process.env.SMTP_USER}>`;
     const subject = 'Password Reset Request';
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">

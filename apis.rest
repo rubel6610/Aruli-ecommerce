@@ -1,67 +1,70 @@
 
 
-POST http://localhost:3000/auth/signup
+POST http://localhost:3000/api/v1/auth/signup
 Content-Type: application/json
 
 {
     "firstName": "Rubel",
     "lastName": "Hossain",
     "email":"rubel@gmail.com",
-    "password": "[PASSWORD]",
+    "password": "Password123!",
     "phone": "1234567890"
 }
 ###
-POST  http://localhost:3000/auth/login
+POST  http://localhost:3000/api/v1/auth/login
 Content-Type: application/json
 
 {
     "email":"rubel@gmail.com",
-    "password": "1234567890"
+    "password": "Password123!"
 }
 ###
-GET http://localhost:3000/users
-
-
-###
-GET  http://localhost:3000/rbac/roles
+GET http://localhost:3000/api/v1/users
 
 ###
-POST  http://localhost:3000/rbac/roles
+GET  http://localhost:3000/api/v1/rbac/roles
+
+###
+POST  http://localhost:3000/api/v1/rbac/roles
 Content-Type: application/json
+
 {
-    "name": "Admin",
+    "name": "Admin"
 }
 ###
-POST  http://localhost:3000/rbac/permissions
+POST  http://localhost:3000/api/v1/rbac/permissions
 Content-Type: application/json
 
 {
     "name": "create-user",
-    "description": "Create user permission"
+    "resource": "user",
+    "action": "create"
 }
 ###
-POST  http://localhost:3000/rbac/user-roles
+POST  http://localhost:3000/api/v1/rbac/user-roles
 Content-Type: application/json
 
 {
-    "userId": "1",
-    "roleId": "1"
+    "userId": "user-uuid-here",
+    "roleId": "role-uuid-here",
+    "assignedById": "admin-uuid-here"
 }
 ###
-DELETE  http://localhost:3000/rbac/user-roles/1/1
+DELETE  http://localhost:3000/api/v1/rbac/user-roles/user-uuid-here/role-uuid-here
+
 ###
-GET  http://localhost:3000/rbac/user-permissions/1
+GET  http://localhost:3000/api/v1/rbac/user-permissions/user-uuid-here
 
-
-POST http://localhost:3000/auth/forgot-password
+###
+POST http://localhost:3000/api/v1/auth/forgot-password
 Content-Type: application/json
 
 {
-    "email": "rubel@gmail.com"
+    "email": "arfan@yopmail.com"
 }
 
 ###
-POST http://localhost:3000/auth/reset-password
+POST http://localhost:3000/api/v1/auth/reset-password
 Content-Type: application/json
 
 {
