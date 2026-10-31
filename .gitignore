@@ -17,7 +17,6 @@ Thumbs.db
 
 # IDEs and editors
 .idea/
-.vscode/
 *.suo
 *.ntvs*
 *.njsproj
@@ -25,8 +24,6 @@ Thumbs.db
 *.swp
 
 # Environment variables / secrets
-.env
-.env.*
 !.env.example
 
 # NestJS build output / CLI
@@ -37,3 +34,5 @@ local.env
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+.gitignore
+config.bat
